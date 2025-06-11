@@ -1,0 +1,190 @@
+
+<lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ComicVault</title>
+  <link rel="stylesheet" href="css.style.css" />
+</head>
+  <meta charset =UTF-8" />
+  <meta name=""viewport" content=""width=device-width, initial scale="1.0" />
+  <title>ComicVault</title>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+
+  apiKey: "AIzaSyBj5KoygE8YRW8gflBEFh7Tqu5kwegqt9U",
+  authDomain: "comicvault-2854f.firebaseapp.com",
+  projectId: "comicvault-2854f",
+  storageBucket: "comicvault-2854f.firebasestorage.app",
+  messagingSenderId: "701353312079",
+  appId: "1:701353312079:web:0f2a1d78824fa7f2888f3a",
+  measurementId: "G-SBE1446V9L"
+};
+// Initialize Firebase};
+ firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+auth.onAuthStateChanged(function(user) {
+  if (!user) {
+    window.location.href = "login.html";
+  }
+});
+// For "Save Without Image" button
+document.getElementById('manualSaveButton').onclick = function() {
+  const user = auth.currentUser;
+  if (!user) {
+    alert("Not logged in!");
+    return;
+  }
+  const comic = {
+    title: document.getElementById('title').value,
+    issue: document.getElementById('issue').value,
+    grade: "N/A", // Default value, can be changed later
+    value: "N/A", // Default value, can be changed later
+    // You can add more fields if you want (like grade, value)
+    created: new Date()
+  };
+  db.collection("users")
+    .doc(user.uid)
+    .collection("comics")
+    .add(comic)
+    .then(() => {
+      alert("Comic saved!");
+      document.getElementById('title').value = "";
+      document.getElementById('issue').value = "";
+      // Optionally reload the collection list here, if needed
+    })
+    .catch((error) => {
+      alert("Error: " + error.message);
+    });
+};
+
+
+</script>
+
+
+};
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #1e1e2f, #3a3a5f);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      min-height: 100vh;
+      color: #fff;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .app-container {
+      backdrop-filter: blur(12px);
+      background: rgba(49, 76, 124, 0.08);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 700px;
+      width: 100%;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .input-group,
+    .comic-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+<
+
+    input,
+    button {
+      padding: 0.8rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      outline: none;
+    }
+
+    button {
+      background: #4fc3f7;
+      color: #000;
+      font-weight: bold;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .preview {
+      max-width: 100%;
+      border-radius: 10px;
+    }
+
+    footer {
+      margin-top: auto;
+      padding-top: 1rem;
+    }
+    
+    .loader {
+        border-radius: 50%;
+        width: 40px; height: 40px; 
+        border-top-color:#4fc3f7; 
+        animation-name:bounce; 
+        animation-duration:.6s; 
+        animation-iteration-count:infinite; 
+        animation-timing-function:ease-in-out; 
+        animation-fill-mode:bounce; 
+        animation-delay:.2s; 
+        animation-play-state:bounce; 
+        animation-direction:bounce; 
+        animation-
+  </style>
+<body>
+  <h1>ComicVault</h1>
+  <div class="app-container">
+    <div class="input-group">
+      <input id="title" type="text" placeholder="Comic Title" />
+      <input id="issue" type="text" placeholder="Issue #" />
+       <label for="photo" style="display:inline-block;padding:12px 18px;background:#4fc3f7;color:#fff;border-radius:6px;cursor:pointer;">
+  📸 Snap Comic Cover or Upload Image
+</label>
+<input
+  type="file"
+  id="photo"
+  accept="image/*"
+  capture="environment"
+  style="display:none;"
+/>
+
+            <img id="preview" class="preview" style="display:none;" />
+      <div class="button-group">
+        <button id="scanButton">Scan & Grade Comic</button>
+        <button id="manualSaveButton">Save Without Image</button>
+        <button onclick="location.href='collection.html'">📚 View Collection</button>
+      </div>
+    </div>
+
+    <div id="spinner" style="display:none; text-align:center;">
+      <div class="loader"></div>
+    </div>
+
+    <div id="results"></div>
+  </div>
+
+  <footer>©2025 ComicVault</footer>
+  <script src="js/scanner.js"></script>
+</body>
+</html>

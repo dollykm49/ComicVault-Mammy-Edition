@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Collection</title>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #1e1e2f, #3a3a5f);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      min-height: 100vh;
+      color: #fff;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .app-container {
+      backdrop-filter: blur(12px);
+      background: rgba(50, 100, 119, 0.08);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 700px;
+      width: 100%;
+      box-shadow: 0 8px 20px rgba(42, 63, 94, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .comic-entry, .card {
+      background: rgba(153, 134, 134, 0.1);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .card h3 { margin-top: 0; }
+    .preview { max-width: 50%; height: auto; }
+    .comic-entry:nth-child(even) {
+  background: rgba(120,180,200,0.18);
+}
+
+    button {
+      background-color: #4fc3f7;
+      color: #4e7286;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      margin-top: 8px;
+    }
+    button:hover { background-color: #81d4fa; }
+    footer {
+      margin-top: auto;
+      padding-top: 1rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Your Collection</h1>
+  <div class="app-container">
+    <div id="comicList"></div>
+    <button onclick="location.href='index.html'">🔙 Back to Scanner</button>
+  </div>
+  <footer>©2025 ComicVault</footer>
+
+<script>
+  // Firebase setup (already configured)
+  const firebaseConfig = {
+    apiKey: "AIzaSyBj5KoygE8YRW8gflBEFh7Tqu5kwegqt9U",
+    authDomain: "comicvault-2854f.firebaseapp.com",
+    projectId: "comicvault-2854f",
+    storageBucket: "comicvault-2854f.firebasestorage.app",
+    messagingSenderId: "701353312079",
+    appId: "1:701353312079:web:0f2a1d78824fa7f2888f3a",
+    measurementId: "G-SBE1446V9L"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  auth.onAuthStateChanged(function(user) {
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    // --- Display Total at the Top ---
+    const totalDiv = document.createElement("div");
+    totalDiv.id = "collectionTotal";
+    totalDiv.style.fontSize = "1.3em";
+    totalDiv.style.fontWeight = "bold";
+    totalDiv.style.marginBottom = "1em";
+    document.querySelector(".app-container").insertBefore(totalDiv, document.getElementById("comicList"));
+
+    // --- Load and Sort Collection ---
+    const collection = JSON.parse(localStorage.getItem("comicVault") || "[]");
+    const list = document.getElementById("comicList");
+
+    if (collection.length === 0) {
+      list.innerHTML = "<p>No comics in your vault yet!</p>";
+      totalDiv.textContent = ""; // No total if empty
+    } else {
+      // 1. Sort comics by title, then by issue number (ascending)
+      collection.sort((a, b) => {
+        const titleA = (a.title || "").toLowerCase();
+        const titleB = (b.title || "").toLowerCase();
+        if (titleA < titleB) return -1;
+        if (titleA > titleB) return 1;
+        const issueA = parseInt(a.issue, 10) || 0;
+        const issueB = parseInt(b.issue, 10) || 0;
+        return issueA - issueB;
+      });
+
+      // 2. Total Value
+      const totalValue = collection.reduce((sum, comic) => {
+        const val = parseFloat(comic.value) || 0;
+        return sum + val;
+      }, 0);
+      totalDiv.textContent = `💰 Total Collection Value: $${totalValue.toFixed(2)}`;
+
+      // 3. Render with grouping headers
+      let lastTitle = "";
+      list.innerHTML = ""; // Clear previous
+      collection.forEach((comic, index) => {
+        const div = document.createElement("div");
+        div.className = "comic-entry";
+        let groupHeader = "";
+        if (comic.title !== lastTitle) {
+          groupHeader = `<h3 style="margin-top:2em; color:#4fc3f7;">${comic.title}</h3>`;
+          lastTitle = comic.title;
+        }
+        div.innerHTML = `
+          ${groupHeader}
+          Issue #${comic.issue}<br/>
+          Grade: ${comic.grade} | Value: $${comic.value}<br/>
+          ${comic.image ? `<img src="${comic.image}" class="preview" />` : ""}
+          <button onclick="deleteComic(${index})">🗑 Delete</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    window.deleteComic = function(index) {
+      const collection = JSON.parse(localStorage.getItem("comicVault") || "[]");
+      collection.splice(index, 1);
+      localStorage.setItem("comicVault", JSON.stringify(collection));
+      location.reload();
+    };
+  });
+</script>
+
+
+</body>
+
+</html>

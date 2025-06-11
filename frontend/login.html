@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - ComicVault</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <!-- Firebase CDN scripts (must keep!) -->
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  </head>
+  <body>
+    <h1>Login to ComicVault</h1>
+    <div class="app-container">
+      <div class="input-group">
+        <input type="email" id="email" placeholder="Email" />
+        <input type="password" id="password" placeholder="Password" />
+        <button onclick="login()">Login</button>
+        <button onclick="signup()">Sign Up</button>
+      </div>
+      <div style="text-align: center; margin-top: 1rem">
+        <!-- You can delete this line if you don't want "Back to Scanner" -->
+        >
+      </div>
+    </div>
+    <div id="loginMsg" style="text-align: center; margin-top: 1rem; color: red;"></div>
+    <div class="footer">©2025 ComicVault</div>
+    <!-- Firebase Config and Logic -->
+    <script>
+      // Your actual Firebase config
+      const firebaseConfig = {
+        apiKey: "AIzaSyBj5KoygE8YRW8gflBEFh7Tqu5kwegqt9U",
+        authDomain: "comicvault-2854f.firebaseapp.com",
+        projectId: "comicvault-2854f",
+        storageBucket: "comicvault-2854f.appspot.com",
+        messagingSenderId: "701353312079",
+        appId: "1:701353312079:web:0f2a1d78824fa7f2888f3a",
+        measurementId: "G-SBE1446V9L"
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+
+
+function saveComicWithImage(title, issue, grade, value, imageUrl) {
+  const user = auth.currentUser;
+  if (!user) {
+    alert("You must be logged in!");
+    return;
+  }
+  db.collection("users")
+    .doc(user.uid)
+    .collection("comics")
+    .add({
+      title,
+      issue,
+      grade,
+      value,
+      imageUrl, // The image’s download URL from Firebase Storage
+      created: new Date()
+    })
+    .then(() => alert("Comic saved!"))
+    .catch((error) => alert("Error: " + error.message));
+}
+
+      function login() {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        auth
+          .signInWithEmailAndPassword(email, password)
+          .then(() => {
+            window.location.href = "index.html";
+          })
+          .catch((error) => {
+            document.getElementById("loginMsg").textContent = "Login failed: " + error.message;
+          });
+      }
+
+      function signup() {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        auth
+          .createUserWithEmailAndPassword(email, password)
+          .then(() => {
+            document.getElementById("loginMsg").textContent = "Signup successful! You can now log in.";
+          })
+          .catch((error) => {
+            document.getElementById("loginMsg").textContent = "Signup failed: " + error.message;
+          });
+      }
+    </script>
+  </body>
+</html>
