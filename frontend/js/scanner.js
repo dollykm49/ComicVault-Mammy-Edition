@@ -38,7 +38,7 @@ scanButton.addEventListener("click", async () => {
   let pricing = { highest: 0, sources: {} };
 
   if (imageData) {
-    const response = await fetch("http://localhost:5000/api/grade", {
+    const response = await fetch("https://comicvault-backend.onrender.com", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title, issue, image: imageData })
