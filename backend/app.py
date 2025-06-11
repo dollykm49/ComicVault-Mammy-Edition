@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from grader_engine import grade_comic
+from grader import grade_comic
 from scraper import get_market_prices
 from ocr import extract_title_issue
 from PIL import Image
